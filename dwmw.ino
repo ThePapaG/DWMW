@@ -44,7 +44,7 @@ void driveMotors(double motorA, double motorB){
    */
   motorA = abs(motorA)>1? 1*(motorA/abs(motorA)): motorA;
   motorB = abs(motorB)>1? 1*(motorB/abs(motorB)): motorB;
-  
+
   if(motorA>0){
     //Switch to forward
     digitalWrite(mAin1, LOW);
@@ -76,11 +76,15 @@ void driveMotors(double motorA, double motorB){
   analogWrite(mA, abs(motorA)*255);
   analogWrite(mB, abs(motorB)*255);
 }
-double readSensor(){
 
-  /*
-   * Read sensor here after moving the servo
-   */
+/**
+ * This function reads the ultrasonic sensor.
+ * To do this, pulse the trigger pin high then listen
+ * to pulse length on echo pin for distance.
+ * 
+ * Return the distance in mm.
+ */
+double readSensor(){
   // Clears the trigPin
   digitalWrite(trigPin, LOW);
   delayMicroseconds(2);
@@ -90,10 +94,14 @@ double readSensor(){
   delayMicroseconds(10);
   digitalWrite(trigPin, LOW);
   
-  // Reads the echoPin, returns the sound wave travel time in microseconds
-  return pulseIn(echoPin, HIGH) * (0.034/2);
+  // Reads the echoPin, returns the sound wave travel time
+  return pulseIn(echoPin, HIGH) * (0.34/2);
 }
 
+/**
+ * This function uses the servo library too rotate
+ * a servo motor.
+ */
 //void moveServo(){
 //  
 //  /*
@@ -133,8 +141,6 @@ void setup() {
   pinMode(trigPin, OUTPUT);
   pinMode(echoPin, INPUT);
 
-  randomSeed(analogRead(0));
-
 //  //setup servo
 //  servoMotor.attach(servoPin);
 //  servoAngle = servoMin;
@@ -147,7 +153,12 @@ void setup() {
 }
 
 void loop() {
-  if(readSensor()<25){
+
+  /**
+   * Basic logic checks sensor and if there's an
+   * obstacle <250mm then spin until there isn't.
+   */
+  if(readSensor()<250){
     Serial.println("I can't see! ");
     Serial.println(readSensor());
     driveMotors(0.8, -0.8);
